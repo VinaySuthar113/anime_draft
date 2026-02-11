@@ -1,14 +1,152 @@
 [
-  {"name":"Aren Vox","base_power":80,"role_bonus":{"captain":15}},
-  {"name":"Kael Shin","base_power":75,"role_bonus":{"tank":15}},
-  {"name":"Zyra Noct","base_power":70,"role_bonus":{"healer":15}},
-  {"name":"Riven Ash","base_power":78,"role_bonus":{"vice_captain":12}},
-  {"name":"Miko Vale","base_power":68,"role_bonus":{"support":10}},
-  {"name":"Kuro Ren","base_power":72,"role_bonus":{"support":8}},
-  {"name":"Nova Rex","base_power":85,"role_bonus":{"captain":10}},
-  {"name":"Iris Flame","base_power":66,"role_bonus":{"healer":12}},
-  {"name":"Void Kane","base_power":88,"role_bonus":{"tank":10}},
-  {"name":"Echo Blaze","base_power":74,"role_bonus":{"support":9}},
-  {"name":"Silas Rift","base_power":77,"role_bonus":{"vice_captain":10}},
-  {"name":"Luna Pyre","base_power":69,"role_bonus":{"support":11}}
+  {
+    "name":"Naruto",
+    "image":"/static/images/naruto.jpg",
+    "roles":{"Captain":96000,"Vice":94000,"Tank":88000,"Healer":50000,"Support1":75000,"Support2":72000}
+  },
+  {
+    "name":"Sasuke",
+    "image":"/static/images/sasuke.jpg",
+    "roles":{"Captain":94000,"Vice":93000,"Tank":85000,"Healer":45000,"Support1":76000,"Support2":74000}
+  },
+  {
+    "name":"Goku",
+    "image":"/static/images/goku.jpg",
+    "roles":{"Captain":100000,"Vice":98000,"Tank":92000,"Healer":40000,"Support1":80000,"Support2":78000}
+  },
+  {
+    "name":"Vegeta",
+    "image":"/static/images/vegeta.jpg",
+    "roles":{"Captain":97000,"Vice":95000,"Tank":90000,"Healer":38000,"Support1":77000,"Support2":75000}
+  },
+  {
+    "name":"Luffy",
+    "image":"/static/images/luffy.jpg",
+    "roles":{"Captain":93000,"Vice":91000,"Tank":87000,"Healer":48000,"Support1":76000,"Support2":74000}
+  },
+  {
+    "name":"Zoro",
+    "image":"/static/images/zoro.jpg",
+    "roles":{"Captain":92000,"Vice":90000,"Tank":89000,"Healer":30000,"Support1":74000,"Support2":72000}
+  },
+  {
+    "name":"Sanji",
+    "image":"/static/images/sanji.jpg",
+    "roles":{"Captain":88000,"Vice":91000,"Tank":70000,"Healer":60000,"Support1":82000,"Support2":80000}
+  },
+  {
+    "name":"Ichigo",
+    "image":"/static/images/ichigo.jpg",
+    "roles":{"Captain":92000,"Vice":90000,"Tank":86000,"Healer":52000,"Support1":76000,"Support2":74000}
+  },
+  {
+    "name":"Gojo",
+    "image":"/static/images/gojo.jpg",
+    "roles":{"Captain":97000,"Vice":95000,"Tank":89000,"Healer":65000,"Support1":84000,"Support2":82000}
+  },
+  {
+    "name":"Sukuna",
+    "image":"/static/images/sukuna.jpg",
+    "roles":{"Captain":99000,"Vice":96000,"Tank":91000,"Healer":25000,"Support1":72000,"Support2":70000}
+  },
+  {
+    "name":"Levi",
+    "image":"/static/images/levi.jpg",
+    "roles":{"Captain":85000,"Vice":90000,"Tank":78000,"Healer":45000,"Support1":86000,"Support2":84000}
+  },
+  {
+    "name":"Eren",
+    "image":"/static/images/eren.jpg",
+    "roles":{"Captain":94000,"Vice":92000,"Tank":93000,"Healer":35000,"Support1":73000,"Support2":71000}
+  },
+  {
+    "name":"Mikasa",
+    "image":"/static/images/mikasa.jpg",
+    "roles":{"Captain":88000,"Vice":92000,"Tank":82000,"Healer":42000,"Support1":88000,"Support2":86000}
+  },
+  {
+    "name":"Tanjiro",
+    "image":"/static/images/tanjiro.jpg",
+    "roles":{"Captain":86000,"Vice":84000,"Tank":76000,"Healer":70000,"Support1":80000,"Support2":78000}
+  },
+  {
+    "name":"Rengoku",
+    "image":"/static/images/rengoku.jpg",
+    "roles":{"Captain":95000,"Vice":93000,"Tank":88000,"Healer":35000,"Support1":76000,"Support2":74000}
+  },
+  {
+    "name":"Itachi",
+    "image":"/static/images/itachi.jpg",
+    "roles":{"Captain":96000,"Vice":94000,"Tank":75000,"Healer":60000,"Support1":90000,"Support2":88000}
+  },
+  {
+    "name":"Madara",
+    "image":"/static/images/madara.jpg",
+    "roles":{"Captain":99000,"Vice":97000,"Tank":95000,"Healer":30000,"Support1":85000,"Support2":83000}
+  },
+  {
+    "name":"Kakashi",
+    "image":"/static/images/kakashi.jpg",
+    "roles":{"Captain":88000,"Vice":92000,"Tank":76000,"Healer":70000,"Support1":87000,"Support2":85000}
+  },
+  {
+    "name":"All Might",
+    "image":"/static/images/allmight.jpg",
+    "roles":{"Captain":98000,"Vice":95000,"Tank":96000,"Healer":20000,"Support1":72000,"Support2":70000}
+  },
+  {
+    "name":"Deku",
+    "image":"/static/images/deku.jpg",
+    "roles":{"Captain":90000,"Vice":88000,"Tank":82000,"Healer":48000,"Support1":83000,"Support2":81000}
+  },
+  {
+    "name":"Aizen",
+    "image":"/static/images/aizen.jpg",
+    "roles":{"Captain":97000,"Vice":95000,"Tank":88000,"Healer":72000,"Support1":92000,"Support2":90000}
+  },
+  {
+    "name":"Killua",
+    "image":"/static/images/killua.jpg",
+    "roles":{"Captain":85000,"Vice":90000,"Tank":70000,"Healer":40000,"Support1":89000,"Support2":87000}
+  },
+  {
+    "name":"Hisoka",
+    "image":"/static/images/hisoka.jpg",
+    "roles":{"Captain":87000,"Vice":92000,"Tank":72000,"Healer":35000,"Support1":91000,"Support2":89000}
+  },
+  {
+    "name":"Light",
+    "image":"/static/images/light.jpg",
+    "roles":{"Captain":75000,"Vice":88000,"Tank":20000,"Healer":50000,"Support1":95000,"Support2":93000}
+  },
+  {
+    "name":"L",
+    "image":"/static/images/l.jpg",
+    "roles":{"Captain":70000,"Vice":85000,"Tank":15000,"Healer":45000,"Support1":96000,"Support2":94000}
+  },
+  {
+    "name":"Edward Elric",
+    "image":"/static/images/edward.jpg",
+    "roles":{"Captain":88000,"Vice":86000,"Tank":78000,"Healer":70000,"Support1":82000,"Support2":80000}
+  },
+  {
+    "name":"Alucard",
+    "image":"/static/images/alucard.jpg",
+    "roles":{"Captain":95000,"Vice":92000,"Tank":94000,"Healer":30000,"Support1":78000,"Support2":76000}
+  },
+  {
+    "name":"Yami",
+    "image":"/static/images/yami.jpg",
+    "roles":{"Captain":93000,"Vice":91000,"Tank":90000,"Healer":40000,"Support1":76000,"Support2":74000}
+  },
+  {
+    "name":"Asta",
+    "image":"/static/images/asta.jpg",
+    "roles":{"Captain":90000,"Vice":88000,"Tank":87000,"Healer":20000,"Support1":72000,"Support2":70000}
+  },
+  {
+    "name":"Escanor",
+    "image":"/static/images/escanor.jpg",
+    "roles":{"Captain":100000,"Vice":96000,"Tank":98000,"Healer":10000,"Support1":65000,"Support2":62000}
+  }
 ]

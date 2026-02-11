@@ -1,37 +1,34 @@
-ROLES = ["captain", "vice_captain", "tank", "healer", "support", "support"]
+roles = ["Captain","Vice","Tank","Healer","Support1","Support2"]
 
 def judge_teams(teamA, teamB):
     rounds = []
-    scoreA = scoreB = 0
+    scoreA = 0
+    scoreB = 0
 
-    for i, role in enumerate(ROLES):
+    for i in range(6):
         a = teamA[i]
         b = teamB[i]
 
-        pa = a["base_power"] + a["role_bonus"].get(role, 0)
-        pb = b["base_power"] + b["role_bonus"].get(role, 0)
-
-        if pa > pb:
-            winner = "Team A"
+        if a["power"] > b["power"]:
+            winner = "A"
             scoreA += 1
-        elif pb > pa:
-            winner = "Team B"
+        elif b["power"] > a["power"]:
+            winner = "B"
             scoreB += 1
         else:
             winner = "Draw"
 
         rounds.append({
-            "role": role,
-            "A": a["name"],
-            "B": b["name"],
+            "role": roles[i],
             "winner": winner
         })
 
-    final = "Draw"
     if scoreA > scoreB:
-        final = "Team A"
+        final = "A"
     elif scoreB > scoreA:
-        final = "Team B"
+        final = "B"
+    else:
+        final = "Draw"
 
     return {
         "rounds": rounds,

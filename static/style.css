@@ -1,41 +1,235 @@
-body{
-  background:#0f172a;
-  color:white;
-  font-family:sans-serif;
-  text-align:center;
-}
-button{margin:5px;padding:6px 12px}
-#slots div{
-  border:1px solid #334155;
-  margin:5px;
-  padding:8px;
-  cursor:pointer;
-}
-#currentCard{
-  font-size:20px;
-  margin:10px;
+/* ===============================
+   GLOBAL
+================================= */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #bcd5d9;
+    text-align: center;
+    overflow-x: hidden;
 }
 
-.popup{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:#020617;
-  border:2px solid #38bdf8;
-  padding:20px;
-  z-index:100;
-}
-.hidden{display:none}
-
-.swap-slot {
-  border: 1px solid #38bdf8;
-  padding: 8px;
-  margin: 5px;
-  cursor: pointer;
+.title {
+    font-size: 48px;
+    font-weight: bold;
+    letter-spacing: 2px;
 }
 
-.swap-slot.selected {
-  background: #38bdf8;
-  color: black;
+/* ===============================
+   SCREENS
+================================= */
+
+.screen {
+    display: none;
+    padding-top: 80px;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* ===============================
+   BUTTONS
+================================= */
+
+button {
+    padding: 12px 30px;
+    margin: 10px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(45deg, #b600ff, #6e00ff);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===============================
+   INPUT
+================================= */
+
+input {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #aaa;
+    outline: none;
+    font-size: 14px;
+}
+
+/* ===============================
+   TEAM ROW
+================================= */
+
+.team-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+/* ===============================
+   CARDS
+================================= */
+
+.card {
+    width: 120px;
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 16px;
+    position: relative;
+    transition: 0.25s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* Remove stroke completely */
+.card,
+.card.large {
+    border: none;
+}
+
+/* Hover lift */
+.card:hover {
+    transform: translateY(-6px);
+}
+
+/* Large drawn card */
+.card.large {
+    width: 220px;
+    height: 320px;
+    margin: auto;
+}
+
+/* ===============================
+   CARD NAME OVERLAY
+================================= */
+
+.card-name {
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    color: white;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 0 0 16px 16px;
+}
+
+/* ===============================
+   EMPTY SLOT LABEL
+================================= */
+
+.role-label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    align-self: center;
+}
+
+/* Assignable glow */
+.slot.assignable {
+    box-shadow: 0 0 25px #b300ff;
+    transform: scale(1.08);
+}
+
+/* ===============================
+   CENTER AREA
+================================= */
+
+.center-area {
+    margin-top: 40px;
+}
+
+/* ===============================
+   TURN INDICATOR
+================================= */
+
+#turnIndicator {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.your-turn {
+    color: #4caf50;
+}
+
+.opponent-turn {
+    color: #ff3b3b;
+}
+
+/* ===============================
+   POPUPS
+================================= */
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.popup.hidden {
+    display: none;
+}
+
+.popup-box {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    min-width: 320px;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    animation: popupFade 0.3s ease;
+}
+
+@keyframes popupFade {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===============================
+   SWAP ROW
+================================= */
+
+.swap-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* ===============================
+   HIDDEN
+================================= */
+
+.hidden {
+    display: none;
 }

@@ -1,203 +1,362 @@
-let roomId = null;
-let myTeam = null;
-let currentCard = null;
-let endTriggered = false;
-let pollingStarted = false;
+let state = {
+    username: "",
+    mode: null,
+    room: null,
+    team: null,
+    currentTurn: false,
+    drawnCard: null
+};
 
+const roles = ["Captain","Vice","Tank","Healer","Support1","Support2"];
+
+let gameInterval = null;
+let resultShown = false;
+let swapPopupShown = false;
 let swapSelection = [];
 
-const roles = ["Captain","Vice Captain","Tank","Healer","Support","Support"];
 
-/* ---------------- ROOM ---------------- */
+/* =======================================================
+   SCREEN CONTROL
+======================================================= */
 
-async function createRoom() {
-  const r = await fetch("/api/room/create",{method:"POST"});
-  const d = await r.json();
-  roomId = d.room_id;
-  document.getElementById("roomInput").value = roomId;
-  await joinRoom();
+function showScreen(id){
+    document.querySelectorAll(".screen")
+        .forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-async function joinRoom() {
-  roomId = document.getElementById("roomInput").value;
-  const r = await fetch(`/api/room/join/${roomId}`,{method:"POST"});
-  const d = await r.json();
 
-  if (d.error) return alert(d.error);
+/* =======================================================
+   USERNAME
+======================================================= */
 
-  myTeam = d.team;
-
-  if (!pollingStarted) {
-    pollingStarted = true;
-    poll();
-  }
+function enterUsername(){
+    const name = document.getElementById("usernameInput").value.trim();
+    if(!name) return;
+    state.username = name;
+    showScreen("modeScreen");
 }
 
-/* ---------------- POLLING ---------------- */
 
-function poll() {
-  setInterval(async()=>{
-    if(!roomId || !myTeam) return;
+/* =======================================================
+   MODE
+======================================================= */
 
-    const r = await fetch(`/api/state/${roomId}/${myTeam}`);
-    const state = await r.json();
+function selectMode(mode){
+    state.mode = mode;
+    if(mode === "2p"){
+        document.getElementById("displayName").innerText = state.username;
+        showScreen("roomScreen");
+    }
+}
 
-    // JOIN STATUS
-    document.getElementById("joinStatus").innerText =
-      state.players_joined < 2
-        ? "⏳ Waiting for opponent..."
-        : "✅ Opponent joined";
 
-    // TURN STATUS
-    document.getElementById("turnStatus").innerText =
-      state.your_turn ? "🟢 Your turn" : "🔴 Opponent's turn";
+/* =======================================================
+   ROOM
+======================================================= */
 
-    renderSlots(state.your_team);
+async function createRoom(){
+    const res = await fetch("/api/create",{method:"POST"});
+    const data = await res.json();
+    if(data.error) return alert(data.error);
 
-    // 🔥 ENDGAME (ONCE)
-    if (!endTriggered && (state.phase === "SWAP" || state.phase === "RESULT")) {
-      endTriggered = true;
-      disableGameControls(true);
+    state.room = data.room;
+    state.team = data.team;
 
-      if (state.phase === "SWAP") {
-        showSwapUI(state.your_team);
-      } else {
-        showResult();
-      }
+    document.getElementById("roomCodeDisplay").innerText = state.room;
+    pollRoom();
+}
+
+async function joinRoom(){
+    const code = document.getElementById("roomInput").value.trim();
+    if(!code) return;
+
+    const res = await fetch("/api/join",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ room:code, username:state.username })
+    });
+
+    const data = await res.json();
+    if(data.error) return alert(data.error);
+
+    state.room = data.room;
+    state.team = data.team;
+
+    pollRoom();
+}
+
+async function pollRoom(){
+    const interval = setInterval(async ()=>{
+        const res = await fetch(`/api/state/${state.room}/${state.team}`);
+        const data = await res.json();
+
+        if(data.opponent_joined){
+            clearInterval(interval);
+            startCountdown();
+        }
+    },1000);
+}
+
+function startCountdown(){
+    let seconds = 5;
+    const el = document.getElementById("countdown");
+
+    const timer = setInterval(()=>{
+        el.innerText = "Starting in: " + seconds;
+        seconds--;
+        if(seconds < 0){
+            clearInterval(timer);
+            startGame();
+        }
+    },1000);
+}
+
+
+/* =======================================================
+   GAME
+======================================================= */
+
+function startGame(){
+    showScreen("gameScreen");
+    pollGameState();
+}
+
+async function pollGameState(){
+
+    if(gameInterval) clearInterval(gameInterval);
+
+    gameInterval = setInterval(async ()=>{
+
+        const res = await fetch(`/api/state/${state.room}/${state.team}`);
+        const data = await res.json();
+
+        state.currentTurn = data.your_turn;
+
+        const indicator = document.getElementById("turnIndicator");
+
+        if(state.currentTurn){
+            indicator.innerText="Your Turn - Draw a Card";
+            indicator.className="your-turn";
+        } else {
+            indicator.innerText="Opponent's Turn";
+            indicator.className="opponent-turn";
+        }
+
+        renderSlots(data.your_team);
+
+        /* -------- SWAP PHASE -------- */
+
+        if(data.phase === "SWAP_OPTIONAL" && !swapPopupShown){
+            swapPopupShown = true;
+
+            if(data.skip_available){
+                showSwapPopup(data.your_team);
+            } else {
+                // player has no swap → auto mark decision
+                await fetch(`/api/swap/${state.room}`,{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({
+                        team:state.team,
+                        skip:true
+                    })
+                });
+            }
+        }
+
+        /* -------- RESULT PHASE -------- */
+
+        if(data.phase === "RESULT" && !resultShown){
+            resultShown = true;
+            clearInterval(gameInterval);
+            showResult();
+        }
+
+    },1000);
+}
+
+
+/* =======================================================
+   DRAW
+======================================================= */
+
+async function drawCard(){
+
+    if(!state.currentTurn) return;
+
+    const res = await fetch(`/api/draw/${state.room}/${state.team}`);
+    const data = await res.json();
+    if(data.error) return alert(data.error);
+
+    state.drawnCard = data;
+
+    const card = document.getElementById("drawnCard");
+    card.style.backgroundImage = `url(${data.image})`;
+    card.innerHTML = `<div class="card-name">${data.name}</div>`;
+    card.classList.remove("hidden");
+}
+
+
+/* =======================================================
+   RENDER TEAM
+======================================================= */
+
+function renderSlots(team){
+
+    const row = document.getElementById("myTeam");
+    row.innerHTML = "";
+
+    roles.forEach((role,i)=>{
+
+        const slot = document.createElement("div");
+        slot.className = "card slot";
+
+        if(team[i]){
+            slot.style.backgroundImage = `url(${team[i].image})`;
+            slot.innerHTML = `<div class="card-name">${team[i].name}</div>`;
+        }
+        else{
+            slot.innerHTML = `<div class="role-label">${role}</div>`;
+
+            if(state.drawnCard && state.currentTurn){
+                slot.classList.add("assignable");
+                slot.onclick = ()=>assignToSlot(i);
+            }
+        }
+
+        row.appendChild(slot);
+    });
+}
+
+
+/* =======================================================
+   ASSIGN
+======================================================= */
+
+async function assignToSlot(index){
+
+    if(!state.drawnCard) return;
+
+    const res = await fetch(`/api/assign/${state.room}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ team:state.team, slot:index })
+    });
+
+    const data = await res.json();
+    if(data.error) return alert(data.error);
+
+    state.drawnCard = null;
+
+    const card = document.getElementById("drawnCard");
+    card.classList.add("hidden");
+    card.innerHTML = "";
+}
+
+
+/* =======================================================
+   SWAP
+======================================================= */
+
+function showSwapPopup(team){
+
+    const popup = document.getElementById("swapPopup");
+    const container = document.getElementById("swapOptions");
+
+    container.innerHTML = "";
+    swapSelection = [];
+
+    roles.forEach((role,i)=>{
+        const div = document.createElement("div");
+        div.className="card slot";
+        div.style.backgroundImage = `url(${team[i].image})`;
+        div.innerHTML = `<div class="card-name">${team[i].name}</div>`;
+
+        div.onclick = ()=>{
+            if(swapSelection.includes(i)) return;
+
+            if(swapSelection.length < 2){
+                swapSelection.push(i);
+                div.style.outline="3px solid #ff00ff";
+            }
+        };
+
+        container.appendChild(div);
+    });
+
+    popup.classList.remove("hidden");
+}
+
+async function confirmSwap(){
+
+    if(swapSelection.length !== 2){
+        alert("Select two cards to swap");
+        return;
     }
 
-  },1000);
+    await fetch(`/api/swap/${state.room}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            team:state.team,
+            slot1:swapSelection[0],
+            slot2:swapSelection[1]
+        })
+    });
+
+    document.getElementById("swapPopup").classList.add("hidden");
 }
 
-/* ---------------- ACTIONS ---------------- */
+async function skipSwap(){
 
-async function draw() {
-  const r = await fetch(`/api/draw/${roomId}/${myTeam}`);
-  const d = await r.json();
-  if(d.error) return alert(d.error);
+    await fetch(`/api/swap/${state.room}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            team:state.team,
+            skip:true
+        })
+    });
 
-  currentCard = d.name;
-  document.getElementById("currentCard").innerText = d.name;
+    document.getElementById("swapPopup").classList.add("hidden");
 }
 
-async function assign(slot) {
-  if(!currentCard) return alert("Draw a character first");
 
-  const r = await fetch(`/api/assign/${roomId}`,{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({team:myTeam,slot})
-  });
-
-  const d = await r.json();
-  if(d.error) return alert(d.error);
-
-  currentCard = null;
-  document.getElementById("currentCard").innerText = "";
-}
-
-async function skip() {
-  const r = await fetch(`/api/skip/${roomId}/${myTeam}`,{method:"POST"});
-  const d = await r.json();
-  if(d.error) return alert(d.error);
-
-  currentCard = null;
-  document.getElementById("currentCard").innerText = "";
-}
-
-/* ---------------- UI ---------------- */
-
-function renderSlots(team) {
-  const div=document.getElementById("slots");
-  div.innerHTML="";
-  team.forEach((c,i)=>{
-    div.innerHTML+=`
-      <div onclick="assign(${i})">
-        ${roles[i]}: ${c ? c.name : "Empty"}
-      </div>`;
-  });
-}
-
-function disableGameControls(disabled) {
-  document.getElementById("drawBtn").disabled = disabled;
-  document.getElementById("skipBtn").disabled = disabled;
-}
-
-/* ---------------- SWAP ---------------- */
-
-function showSwapUI(team) {
-  const div = document.getElementById("swapSlots");
-  div.innerHTML = "";
-  swapSelection = [];
-
-  team.forEach((c, i) => {
-    const el = document.createElement("div");
-    el.className = "swap-slot";
-    el.innerText = `${roles[i]}: ${c.name}`;
-    el.onclick = () => toggleSwap(i, el);
-    div.appendChild(el);
-  });
-
-  document.getElementById("swapPopup").classList.remove("hidden");
-}
-
-function toggleSwap(index, el) {
-  if (swapSelection.includes(index)) {
-    swapSelection = swapSelection.filter(i => i !== index);
-    el.classList.remove("selected");
-  } else {
-    if (swapSelection.length === 2) return;
-    swapSelection.push(index);
-    el.classList.add("selected");
-  }
-}
-
-async function confirmSwap() {
-  if (swapSelection.length !== 2) {
-    return alert("Select exactly two roles to swap");
-  }
-
-  const r = await fetch(`/api/swap/${roomId}`,{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      team: myTeam,
-      from: swapSelection[0],
-      to: swapSelection[1]
-    })
-  });
-
-  const d = await r.json();
-  if (d.error) return alert(d.error);
-
-  document.getElementById("swapPopup").classList.add("hidden");
-  showResult();
-}
-
-/* ---------------- RESULT ---------------- */
-
-let resultShown = false;
+/* =======================================================
+   RESULT
+======================================================= */
 
 async function showResult(){
-  if(resultShown) return;
-  resultShown = true;
 
-  const r = await fetch(`/api/result/${roomId}`);
-  const data = await r.json();
+    const res = await fetch(`/api/result/${state.room}`);
+    const data = await res.json();
 
-  const box = document.getElementById("resultContent");
-  box.innerHTML = "";
+    const box = document.getElementById("resultContent");
+    box.innerHTML = "";
 
-  for(let i=0;i<data.rounds.length;i++){
-    await new Promise(res=>setTimeout(res,700));
-    const rr = data.rounds[i];
-    box.innerHTML += `<p>${rr.role.toUpperCase()}: ${rr.winner}</p>`;
-  }
+    for(let r of data.rounds){
 
-  box.innerHTML += `<h3>🏆 ${data.final_winner}</h3>`;
-  document.getElementById("resultPopup").classList.remove("hidden");
+        box.innerHTML += `
+            <div style="margin-bottom:20px;">
+                <strong>${r.role}</strong><br>
+                ${r.A_name} (${r.A_power}) vs 
+                ${r.B_name} (${r.B_power})<br>
+                Winner: <b>${r.winner}</b>
+            </div>
+        `;
+    }
+
+    box.innerHTML += `<h2>🏆 Final Winner: ${data.final_winner}</h2>`;
+
+    document.getElementById("resultPopup").classList.remove("hidden");
 }
 
-function closeResult(){
-  document.getElementById("resultPopup").classList.add("hidden");
+
+/* =======================================================
+   RESTART
+======================================================= */
+
+function restartGame(){
+    location.reload();
 }

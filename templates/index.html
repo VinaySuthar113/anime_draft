@@ -1,42 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Anime Draft Arena</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <title>Anime Draft</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<h1>Anime Draft Arena</h1>
+<div id="app">
 
-<input id="roomInput" placeholder="Room ID">
-<button onclick="createRoom()">Create</button>
-<button onclick="joinRoom()">Join</button>
+    <!-- USERNAME SCREEN -->
+    <div id="usernameScreen" class="screen active">
+        <h1 class="title">Anime Draft</h1>
+        <h2>Enter your username</h2>
+        <input id="usernameInput" placeholder="Enter username">
+        <button onclick="enterUsername()">Continue</button>
+    </div>
 
-<p id="joinStatus"></p>
-<p id="turnStatus"></p>
+    <!-- MODE SELECT -->
+    <div id="modeScreen" class="screen">
+        <h1 class="title">Anime Draft</h1>
+        <h2>Select Game Mode</h2>
+        <button onclick="selectMode('computer')">Computer</button>
+        <button onclick="selectMode('2p')">2-Player</button>
+        <button disabled>4-Player</button>
+    </div>
 
-<button id="drawBtn" onclick="draw()">Draw</button>
-<button id="skipBtn" onclick="skip()">Skip</button>
+    <!-- ROOM SCREEN -->
+    <div id="roomScreen" class="screen">
+        <h1 class="title">Anime Draft</h1>
 
-<div id="currentCard"></div>
+        <div class="room-info">
+            <p><strong>Username:</strong> <span id="displayName"></span></p>
+            <p><strong>Mode:</strong> 2-Player</p>
+            <p><strong>Room Code:</strong> <span id="roomCodeDisplay">----</span></p>
+            <p><strong>Opponent:</strong> <span id="opponentStatus">Waiting...</span></p>
+        </div>
 
-<h2>Your Team</h2>
-<div id="slots"></div>
+        <p id="countdown"></p>
+
+        <div id="roomControls">
+            <input id="roomInput" placeholder="Enter Room Code">
+            <button onclick="createRoom()">Create Room</button>
+            <button onclick="joinRoom()">Join Room</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="gameScreen" class="screen">
+
+        <h2 id="turnIndicator"></h2>
+
+        <div class="center-area">
+            <div id="drawnCard" class="card large hidden"></div>
+        </div>
+
+        <div class="controls">
+            <button id="drawBtn" onclick="drawCard()">Draw</button>
+            <button id="skipBtn" onclick="skipTurn()">Skip</button>
+        </div>
+
+        <div class="team-row" id="myTeam"></div>
+    </div>
+
+    <!-- RESULT POPUP -->
+    <div id="resultPopup" class="popup hidden">
+        <div class="popup-box result-box">
+            <h2>Battle Results</h2>
+
+            <div id="resultContent" class="result-rounds"></div>
+
+            <div class="result-footer">
+                <button onclick="restartGame()">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SWAP POPUP -->
+    <div id="swapPopup" class="popup hidden">
+        <div class="popup-box swap-box">
+            <h2>Swap Two Roles</h2>
+
+            <p class="swap-instruction">
+                Select any two characters to swap positions.
+            </p>
+
+            <div id="swapOptions" class="swap-row"></div>
+
+            <div class="swap-controls">
+                <button onclick="confirmSwap()">Confirm Swap</button>
+                <button onclick="skipSwap()">Skip Swap</button>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 <script src="/static/script.js"></script>
-
-<div id="swapPopup" class="popup hidden">
-  <h2>Swap Phase</h2>
-  <p>Select TWO roles to swap</p>
-  <div id="swapSlots"></div>
-  <button onclick="confirmSwap()">Confirm Swap</button>
-</div>
-
-<div id="resultPopup" class="popup hidden">
-  <h2>Final Result</h2>
-  <div id="resultContent"></div>
-  <button onclick="closeResult()">Close</button>
-</div>
-
 </body>
 </html>
